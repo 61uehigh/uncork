@@ -9,6 +9,10 @@ Run Windows programs on your Mac by dropping them on a window.
 Uncork is a small native macOS app on top of [Wine](https://www.winehq.org). It takes care of the parts that make Wine
 hard to use on a Mac: installing it, keeping programs separate, and finding out what went wrong.
 
+<p align="center">
+  <img src="docs/demo.gif" width="800" alt="Dragging Notepad.exe onto the Uncork window pops the cork; dropping it opens Notepad">
+</p>
+
 - **Drop and run.** Drop a `.exe` or `.msi` on the window or the Dock icon, or use *Open With → Uncork* in Finder.
 - **No setup.** The first time you open a program, Uncork downloads a Wine runtime (about 185 MB), checks its SHA-256,
   and unpacks it. Nothing else to install.
