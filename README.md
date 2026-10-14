@@ -14,8 +14,41 @@ hard to use on a Mac: installing it, keeping programs separate, and finding out 
   and unpacks it. Nothing else to install.
 - **One prefix per program.** Every program gets its own Wine prefix, so one program can't break another.
 - **Logs one click away.** Wine's output for each program is saved, and *Show Log* opens it.
+- **Cleans up after itself.** Quitting Uncork stops the Wine background processes its programs leave behind.
 
-> Uncork isn't affiliated with the Wine project or CodeWeavers.
+> Uncork isn't affiliated with the Wine project or CodeWeavers. It's early software (0.1): expect rough edges.
+
+## Why Uncork
+
+Running a Windows program on a Mac got harder in 2026:
+
+- Homebrew [disabled](https://github.com/Homebrew/homebrew-cask/blob/main/Casks/w/wine-stable.rb) the `wine-stable` cask on 2026-09-01 because its
+  builds don't pass the macOS Gatekeeper check, so `brew install --cask wine-stable` now fails.
+- [Whisky](https://github.com/Whisky-App/Whisky), the popular open-source Wine app for macOS, is
+  [no longer maintained](https://docs.getwhisky.app/maintenance-notice) and its repository is archived.
+
+Uncork fills that gap for the simple case: you have one `.exe` and want to run it. It's installed from source with
+Homebrew, so Gatekeeper doesn't get in the way, and it fetches and verifies a current Wine build for you.
+
+## What runs, and what doesn't
+
+Uncork runs programs with Wine, so it can run what Wine can run. Before you rely on a program, look it up in the
+[Wine Application Database](https://appdb.winehq.org).
+
+- **Usually fine:** small utilities, installers, older desktop apps and many older games.
+- **Often not:** games with anti-cheat, anything that installs drivers or kernel components, many DirectX 12 games, and
+  apps that need online Microsoft or DRM services.
+
+If a program fails, *Show Log* in the program's menu opens Wine's output, which usually says why.
+
+### Compared with other options
+
+| | Uncork | [CrossOver](https://www.codeweavers.com/crossover) | Whisky | Windows in a VM (Parallels, UTM) |
+|---|---|---|---|---|
+| Price | Free, MIT | Paid | Free | Paid or free, plus a Windows licence |
+| Maintained | Yes | Yes, with support | No | Yes |
+| Compatibility | Wine | Wine plus CodeWeavers' fixes | Wine | Full Windows |
+| Setup | Drop a file | App with bottles | App with bottles | Install Windows |
 
 ## Requirements
 
@@ -97,12 +130,9 @@ build/Uncork.app/Contents/MacOS/Uncork path/to/program.exe
 1. Tag the release and push the tag: `git tag -a v0.2.0 -m "Uncork 0.2.0" && git push origin v0.2.0`
 2. Publish a GitHub release for the tag: `gh release create v0.2.0`
 
-Publishing the release runs [Update Homebrew formula](.github/workflows/update-homebrew-formula.yml), which points
-the formula in [61uehigh/homebrew-tap](https://github.com/61uehigh/homebrew-tap) at the new tag's source and checksum.
-Pre-releases are skipped. To re-run it for an existing tag, start the workflow by hand with that tag.
-
-The workflow pushes to the tap with a deploy key: the `TAP_DEPLOY_KEY` secret in this repository holds the private key,
-and the tap has the public key as a deploy key with write access.
+[61uehigh/homebrew-tap](https://github.com/61uehigh/homebrew-tap) checks for a new release every six hours and points
+its formula at the release's source and checksum. To pick up a release straight away, run its *Update uncork* workflow
+by hand. Pre-releases are skipped.
 
 ## How it works
 
