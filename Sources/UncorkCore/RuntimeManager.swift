@@ -5,6 +5,11 @@ import Foundation
 public struct WineRuntime: Codable, Sendable, Equatable {
     public let version: String
     public let wineBinary: URL
+
+    /// The per-prefix server that owns every Wine process in a prefix. It sits next to `wine`.
+    public var wineserverBinary: URL {
+        wineBinary.deletingLastPathComponent().appending(path: "wineserver")
+    }
 }
 
 public enum InstallPhase: Sendable, Equatable {

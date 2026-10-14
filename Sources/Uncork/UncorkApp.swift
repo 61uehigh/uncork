@@ -6,7 +6,9 @@ struct UncorkApp: App {
     @NSApplicationDelegateAdaptor private var appDelegate: AppDelegate
 
     var body: some Scene {
-        WindowGroup("Uncork") {
+        // A single window: opening the app again, opening a file with it or clicking the Dock icon brings this
+        // window forward instead of making another copy of it.
+        Window("Uncork", id: "main") {
             ContentView(model: .shared)
                 .frame(minWidth: 460, minHeight: 520)
         }
@@ -28,6 +30,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             MainActor.assumeIsolated {
                 AppModel.shared.open(Array(programs))
             }
+        }
+    }
+
+    /// Asks before closing programs that are still running, then stops Wine in every prefix before quitting.
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        MainActor.assumeIsolated {
+            let model = AppModel.shared
+            let running = model.runningCount
+            if running > 0 {
+                let alert = NSAlert()
+                alert.messageText = running == 1
+                    ? "Quit Uncork and close the Windows program that's still running?"
+                    : "Quit Uncork and close the \(running) Windows programs that are still running?"
+                alert.informativeText = running == 1
+                    ? "Any unsaved work in it will be lost."
+                    : "Any unsaved work in them will be lost."
+                alert.addButton(withTitle: "Quit")
+                alert.addButton(withTitle: "Cancel")
+                guard alert.runModal() == .alertFirstButtonReturn else { return .terminateCancel }
+            }
+            Task { @MainActor in
+                await model.shutDown()
+                NSApp.reply(toApplicationShouldTerminate: true)
+            }
+            return .terminateLater
         }
     }
 

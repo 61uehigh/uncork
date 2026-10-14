@@ -52,4 +52,23 @@ public struct Launcher: Sendable {
         }
         return record
     }
+
+    /// Stops every Windows program and Wine background service (wineserver, winedevice and friends) in Uncork's
+    /// prefixes. Wine leaves those services running after a program exits, so call this when Uncork quits.
+    public func stopAll(prefixIDs: [String], timeout: Duration = .seconds(5)) async {
+        // First the polite way: `-k` kills each prefix's server and every process attached to it.
+        // It fails harmlessly when no server is running for that prefix.
+        let wineserver = runtime.wineserverBinary.path
+        await withTaskGroup(of: Void.self) { group in
+            for id in prefixIDs {
+                let prefix = prefixes.prefixURL(id: id).path
+                group.addTask {
+                    _ = try? await Shell.run(wineserver, ["-k"], environment: ["WINEPREFIX": prefix], timeout: timeout)
+                }
+            }
+        }
+        // Services such as winedevice.exe can outlive their server and are then unreachable through it,
+        // so sweep up anything still running in an Uncork prefix.
+        await WineProcesses.stop(WineProcesses.running(fromRuntimes: prefixes.paths.runtimes, inPrefixes: prefixes.paths.prefixes))
+    }
 }

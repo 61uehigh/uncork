@@ -128,6 +128,19 @@ final class AppModel {
         }
     }
 
+    /// Programs started from this window that haven't exited yet.
+    var runningCount: Int {
+        runStates.values.filter { $0 == .running }.count
+    }
+
+    /// Stops all Windows programs and Wine background services in every known prefix, including ones left over from
+    /// an earlier session that didn't shut down cleanly.
+    func shutDown() async {
+        guard let runtime = runtimes.installed() else { return }
+        let ids = prefixes.recent().map(\.id)
+        await Launcher(runtime: runtime, prefixes: prefixes).stopAll(prefixIDs: ids)
+    }
+
     func revealPrefix(of record: PrefixRecord) {
         NSWorkspace.shared.activateFileViewerSelecting([prefixes.prefixURL(id: record.id)])
     }
