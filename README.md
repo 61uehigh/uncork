@@ -19,7 +19,49 @@ hard to use on a Mac: installing it, keeping programs separate, and finding out 
 - On Apple Silicon: Rosetta 2. Uncork offers to install it, or run
   `softwareupdate --install-rosetta --agree-to-license`.
 
-## Build
+## How to install
+
+### Homebrew
+
+```sh
+brew install 61uehigh/tap/uncork
+```
+
+Or add the tap once, then use the short name:
+
+```sh
+brew tap 61uehigh/tap
+brew install uncork
+```
+
+Homebrew builds Uncork from source on your Mac, which takes a minute or two and needs Xcode's Command Line Tools
+(`xcode-select --install`). Because it's built locally, Gatekeeper doesn't block it.
+
+Then open the app:
+
+```sh
+open "$(brew --prefix)/opt/uncork/Uncork.app"
+```
+
+To find it in Launchpad and Spotlight, link it into Applications:
+
+```sh
+ln -sf "$(brew --prefix)/opt/uncork/Uncork.app" /Applications/Uncork.app
+```
+
+The formula also installs an `uncork` command that opens a program in the app:
+
+```sh
+uncork path/to/program.exe
+```
+
+Update with `brew upgrade uncork`.
+
+### From source
+
+See [Build from source](#build-from-source).
+
+## Build from source
 
 You only need Xcode's Command Line Tools; full Xcode isn't required.
 
@@ -64,7 +106,10 @@ same way you would by installing them yourself.
 
 ## Uninstall
 
-Delete `Uncork.app` and `~/Library/Application Support/Uncork`.
+If you installed with Homebrew, run `brew uninstall uncork` and remove the `/Applications/Uncork.app` link if you made
+one. If you built it yourself, delete `Uncork.app`.
+
+Either way, delete `~/Library/Application Support/Uncork` to remove the Wine runtime, your programs' prefixes and logs.
 
 ## License
 
