@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/icon.png" width="128" height="128" alt="Uncork app icon: a wine bottle with its cork popping out">
+</p>
+
 # Uncork
 
 Run Windows programs on your Mac by dropping them on a window.
@@ -73,7 +77,7 @@ open build/Uncork.app
 Regenerate the app icon after editing `scripts/icon/AppIcon.swift`:
 
 ```sh
-./scripts/make-icon.sh    # writes Resources/AppIcon.icns
+./scripts/make-icon.sh    # writes Resources/AppIcon.icns and docs/icon.png
 ```
 
 Run the tests:
@@ -87,6 +91,18 @@ You can also open a program from the command line:
 ```sh
 build/Uncork.app/Contents/MacOS/Uncork path/to/program.exe
 ```
+
+## Releasing
+
+1. Tag the release and push the tag: `git tag -a v0.2.0 -m "Uncork 0.2.0" && git push origin v0.2.0`
+2. Publish a GitHub release for the tag: `gh release create v0.2.0`
+
+Publishing the release runs [Update Homebrew formula](.github/workflows/update-homebrew-formula.yml), which points
+the formula in [61uehigh/homebrew-tap](https://github.com/61uehigh/homebrew-tap) at the new tag's source and checksum.
+Pre-releases are skipped. To re-run it for an existing tag, start the workflow by hand with that tag.
+
+The workflow pushes to the tap with a deploy key: the `TAP_DEPLOY_KEY` secret in this repository holds the private key,
+and the tap has the public key as a deploy key with write access.
 
 ## How it works
 

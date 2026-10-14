@@ -1,5 +1,5 @@
 #!/bin/sh
-# Regenerates Resources/AppIcon.icns from scripts/icon/AppIcon.swift.
+# Regenerates Resources/AppIcon.icns, and the docs/icon.png shown in the README, from scripts/icon/AppIcon.swift.
 set -eu
 cd "$(dirname "$0")/.."
 
@@ -18,4 +18,8 @@ for size in 16 32 128 256 512; do
 done
 iconutil -c icns -o Resources/AppIcon.icns "$iconset"
 
-echo Resources/AppIcon.icns
+# 256 px is sharp at the 128 pt the README shows it at on Retina screens.
+mkdir -p docs
+sips -z 256 256 "$work/icon_1024.png" --out docs/icon.png >/dev/null
+
+echo Resources/AppIcon.icns docs/icon.png
